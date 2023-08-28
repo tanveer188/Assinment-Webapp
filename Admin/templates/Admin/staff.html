@@ -1,0 +1,68 @@
+{% extends 'base.html' %} 
+{% block head %}
+<title>Admin Subjects Panel</title>
+<style>
+  .mt-2.card-title {
+    margin-bottom: 0;
+  }
+</style>
+{% endblock %}
+{% block body %}
+
+{% include "header.html" %}
+
+<div class="container mt-4">
+  <div class="d-flex align-items-center justify-content-between">
+    <h1 class="mt-1">Staff</h1>
+    <a href="{% url 'register_teacher' %}" class="btn btn-primary"><i class="fa-solid fa-plus"></i> Add Staff</a>
+  </div>
+</div>
+
+<div class="container mt-4">
+  <div class="row">
+    
+    {% for staff in staffs %}
+   <div class="card col-12 col-sm-5 col-md-5 col-lg-5">
+  <div class="card-body">
+    <h5 class="card-title">{{staff}}</h5>
+    <p class="card-text">{{staff.role}}</p>
+    <button class="btn btn-danger delete-btn" data-pk="{{staff.id}}">Remove</button>
+  </div>
+</div>
+
+
+    {% endfor %}
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const deleteButtons = document.querySelectorAll('.delete-btn');
+    deleteButtons.forEach((button) => {
+      button.addEventListener('click', () => {
+        const pk = button.dataset.pk;
+        fetch("{% url 'removeteacher' %}", {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token }}',
+          },
+          body: JSON.stringify({ pk }),
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.status) {
+              // Delete card or perform any desired actions
+              button.closest('.card').remove();
+            }
+          })
+          .catch((error) => {
+            console.log(error);
+          });
+      });
+    });
+  });
+</script>
+
+
+{% endblock %}

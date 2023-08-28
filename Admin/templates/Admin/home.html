@@ -1,0 +1,80 @@
+{% extends 'base.html' %} 
+{% block head %}
+<title>Admin Panel</title>
+
+{% endblock %}
+{% block body %}
+
+
+{% load custom_tags %}
+
+{% include "header.html" %}
+
+<div class="container mt-4">
+  <div class="d-flex align-items-center justify-content-between">
+    <h1 class="mt-1">Classes</h1>
+    {% if request.user|is_user_in_group:"admin_grp" %}
+    <a href="{% url 'newclass' %}" class="btn btn-primary"><i class="fa-solid fa-plus"></i> Add Class</a>
+    {% endif %}
+  </div>
+</div>
+
+<div class="container mt-4">
+  <div class="row">
+    
+    {% for classe in classes %}
+    <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+      <div class="card mb-4">
+        <div class="card-body d-flex flex-row align-items-center justify-content-between">
+{% if request.user|is_user_in_group:"teacher_grp" %}
+          <a href="{% url 'class_teacher' pk=classe.id %}" style="color: inherit; text-decoration: none;">
+{% else %}
+  <a href="{% url 'class_view' pk=classe.id %}" style="color: inherit; text-decoration: none;">
+{% endif %}
+            <h5 class="mt-2 card-title">{{classe.name}}</h5>
+          </a>
+
+{% if request.user|is_user_in_group:"admin_grp" %}
+          <div>
+          <button class="btn btn-danger delete-btn" data-pk="{{ classe.id }}"><i class="fa-solid fa-trash"></i></button>
+          <a href="{% url 'Edit' model_name='Class' pk=classe.id %}" class=" btn btn-primary"><i class="fa-solid fa-pen"></i></a>
+        </div>
+{% endif %}
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% if request.user|is_user_in_group:"admin_grp" %}
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const deleteButtons = document.querySelectorAll('.delete-btn');
+    deleteButtons.forEach((button) => {
+      button.addEventListener('click', () => {
+        const pk = button.dataset.pk;
+        fetch("{% url 'Delete_clas' %}", {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token }}',
+          },
+          body: JSON.stringify({ pk }),
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.status) {
+              // Delete card or perform any desired actions
+              button.closest('.card').remove();
+            }
+          })
+          .catch((error) => {
+            console.log(error);
+          });
+      });
+    });
+  });
+</script>
+{% endif %}
+
+{% endblock %}

@@ -1,0 +1,30 @@
+{% load custom_tags %}
+<nav class="navbar navbar-expand-lg bg-body-tertiary">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="#">{% if class_name %}{{class_name}}{% else %}Admin Panel{% endif %}</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        {% if request.user|is_user_in_group:"teacher_grp" %}
+        <li class="nav-item">
+          <a class="nav-link active" aria-current="page" href="{% url 'teacher_home' %}">Classes</a>
+        </li>
+        {% else %}
+        <li class="nav-item">
+          <a class="nav-link active" aria-current="page" href="{% url 'Admin_homepage' %}">Classes</a>
+        </li>
+        {% endif %}
+        {% if request.user|is_user_in_group:"admin_grp" %}
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'staff_view' %}">Staff</a>
+        </li>
+        {% endif %}
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'logout' %}">Logout</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>

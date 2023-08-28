@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+{%load crispy_forms_tags %} 
+{% block head %}
+<style type="text/css" media="all">
+h2 {
+  color: #000;
+}
+
+.container-form {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  overflow: auto;
+}
+
+.list-group-item.active {
+  background-color: #007bff; /* Primary blue color */
+  border-color: #007bff;
+  color: #fff;
+}
+.form-check-input {
+  position: absolute;
+  opacity: 0;
+}
+</style>
+{% endblock %}
+
+{% block body %}
+  <div class="container">
+    <h1 class="text-center mt-3">{{ quiz.name }}</h1>
+    <div class="progress mb-3">
+      <div class="progress-bar" role="progressbar" aria-valuenow="{{ progress }}" aria-valuemin="0" aria-valuemax="100" style="width: {{ progress }}%"></div>
+    </div>
+    <!-- <h2><span class="badge badge-secondary">{{ answered_questions|add:"1" }}/{{ total_questions }}</span></h2> -->
+    <div class="d-flex flex-column justify-content-center mt-5">
+    <div class="mt-4">
+    <h2 class="mb-3">{{ question.text }}</h2>
+    <form method="post" novalidate>
+      {% csrf_token %}
+      {% if question.question_type == "quiz" %}
+      <div id="div_id_answer" class="mb-3">
+        <ul class="list-group container-form">
+          {% for radio in form.answer %}
+            <li class="list-group-item mb-2 form-check">
+              <input type="radio" name="answer" id="{{ radio.id_for_label }}" value="{{radio.data.value}}" class="form-check-input">
+              <label for="{{ radio.id_for_label }}" class="form-check-label w-100">{{ radio.choice_label }}</label>
+            </li>
+          {% endfor %}
+        </ul>
+      </div>
+      {% else %}
+          {{ form.answer|as_crispy_field }}
+      {% endif %}
+      <button type="submit" class="btn btn-primary w-100">Next →</button>
+    </form>
+    </div>
+  </div>
+
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+  <script type="text/javascript" charset="utf-8">
+    document.addEventListener("DOMContentLoaded", function() {
+      var radioButtons = document.querySelectorAll("input[type='radio'][name='answer']");
+      
+      radioButtons.forEach(function(radioButton) {
+        radioButton.addEventListener("change", function() {
+          var parentLi = this.closest(".list-group-item");
+          if (this.checked) {
+            document.querySelectorAll(".list-group-item").forEach(function(li) {
+              li.classList.remove("active");
+            });
+            parentLi.classList.add("active");
+          }
+        });
+      });
+    });
+  </script>
+  
+{% endblock %}

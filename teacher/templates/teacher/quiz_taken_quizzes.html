@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% block head %}
+<style type="text/css" media="all">
+    /* Additional styling */
+    .scrollable-table {
+        width: 100%;
+        overflow-x: auto;
+    }
+</style>
+{% endblock %}
+{% block body %}
+<div class="container">
+    <h2 class="text-center">Taken Quizzes for {{ quiz.title }}</h2>
+    {% if taken_quizzes %}
+    <div class="scrollable-table">
+        <table class="table text-center">
+            <thead>
+                <tr>
+                    <th>Student</th>
+                    <th>Date</th>
+                    <th>Checked</th>
+                    <th>Score</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for taken_quiz in taken_quizzes %}
+                <tr>
+                    <td>{{ taken_quiz.student.user.username }}</td>
+                    <td>{{ taken_quiz.date|date:"m-d-y" }}</td> <!-- Format the date -->
+                    <td>
+                        {% if taken_quiz.is_checked %}
+                        <i class="fa-solid fa-check text-success"></i>
+                        {% else %}
+                        <a href="{% url 'check_quiz' student_pk=taken_quiz.student.user.id pk=quiz.id%}" class="btn btn-primary">Check</a>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if taken_quiz.is_checked %}{{ taken_quiz.score }}{% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <p class="text-center">No quizzes have been taken yet.</p>
+    {% endif %}
+</div>
+{% endblock %}

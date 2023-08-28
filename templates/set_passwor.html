@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+
+{% load crispy_forms_tags %}
+
+{% block body %}
+<div class="container d-flex align-items-center justify-content-center" style="min-height: 80vh; min-width: 95vw;">
+  <div class="col-md-6">
+    <h1 class="mt-2">Complete Profile</h1>
+    <hr class="mt-0 mb-4">
+    <form method="post" enctype="multipart/form-data" class="form-container" id="form">
+      {% csrf_token %}
+      
+       {{ form|crispy }}
+      <input type="submit" name="Submit" value="Add" class="btn btn-primary btn-block" id="Submit"  />
+    </form>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jsencrypt/3.3.2/jsencrypt.js" integrity="sha512-fKBMJxuNzI6qCC+nxxE9hqcQBFNH39VYP6FtBZOBI9UHHdX+/sNuS9jxIuf6URPmGGCQpAR/xOxCMgMy3VQG/Q==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  const publicKeyPEM = `{{key}}`;
+  const encrypt = new JSEncrypt();
+  encrypt.setPublicKey(publicKeyPEM);
+
+  const loginForm = document.getElementById("form"); // Selecting the first form on the page
+  const password1Input = document.getElementById("id_password1");
+  const password2Input = document.getElementById("id_password2");
+  const submitButton = document.getElementById("Submit");
+
+  loginForm.addEventListener("submit",function(event) {
+    event.preventDefault(); // Prevent default form submission
+
+    // Disable the submit button
+    submitButton.disabled = true;
+
+    // Encrypt the username and passwords
+    const encryptedPassword1 = encrypt.encrypt(password1Input.value);
+    const encryptedPassword2 = encrypt.encrypt(password2Input.value);
+
+    // Perform operations on the encrypted passwords (e.g., concatenate)
+    password1Input.value = encryptedPassword1;
+    password2Input.value = encryptedPassword2;
+    // Manually trigger the form's submit event
+    loginForm.submit();
+  });
+});
+
+
+
+
+
+</script>
+
+{% endblock %}

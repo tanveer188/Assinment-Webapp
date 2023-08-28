@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<style>
+.container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.quiz-name {
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.score {
+  font-size: 18px;
+  color: blue;
+  margin-top: 10px;
+}
+
+.chart-container {
+  margin-top: 20px;
+}
+
+.chart-legend {
+  display: none;
+}
+</style>
+{% endblock %}
+
+{% block body %}
+{% if takenquiz != none %}
+<div class="container">
+  <h1 class="quiz-name">{{ quiz.name }}</h1>
+  <h2 class="score">Score: {{ takenquiz.score }}</h2>
+
+  <div class="chart-container">
+    <canvas id="studentChart"></canvas>
+  </div>
+
+  <a href="{% url 'home' %}" class="btn btn-primary mt-3">Back to Home</a>
+</div>
+{% else %}
+<div class="container quiz-section">
+  <div class="row">
+    <div class="col-md-8 offset-md-2 text-center quiz-content">
+      <h2>Your Quiz Status</h2>
+      <div class="alert alert-info mt-5">
+        <p>Your quiz is currently <strong>Pending Review</strong>.</p>
+        <p>Your results will be available once the teacher reviews your quiz.</p>
+      </div>
+      <a href="{% url 'home' %}" class="btn btn-primary">Go Back Home</a>
+    </div>
+  </div>
+</div>
+{% endif %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% if takenquiz %}
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    var ctx = document.getElementById('studentChart').getContext('2d');
+
+    var data = {
+      labels: {{ student_labels|safe }},
+      datasets: [{
+        label: 'Student Scores',
+        data: {{ student_scores|safe }},
+        backgroundColor: 'rgba(54, 162, 235, 0.5)'
+      }]
+    };
+
+    var options = {
+      scales: {
+        y: {
+          beginAtZero: true
+        }
+      },
+      plugins: {
+        legend: {
+          display: false
+        }
+      }
+    };
+
+    var myChart = new Chart(ctx, {
+      type: 'bar',
+      data: data,
+      options: options
+    });
+  });
+</script>
+{% endif %}
+{% endblock %}

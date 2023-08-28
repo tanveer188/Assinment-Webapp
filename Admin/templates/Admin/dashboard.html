@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<style>
+.container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.quiz-name {
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.score {
+  font-size: 18px;
+  color: blue;
+  margin-top: 10px;
+}
+
+.chart-container {
+  margin-top: 20px;
+}
+
+.chart-legend {
+  display: none;
+}
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="container">
+  <div class="chart-container">
+    <canvas id="classViewChart"></canvas>
+  </div>
+
+  <a href="{% url 'home' %}" class="btn btn-primary mt-3">Back to Home</a>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  // Get the class names, view counts, and colors from the Django template context
+  var classNames = {{ classdata.0|safe }};
+  var viewCounts = {{ classdata.1|safe }};
+//  var classColors = {{ class_colors|safe }};
+
+  // Create the pie chart for class views using Chart.js
+  var ctx = document.getElementById('classViewChart').getContext('2d');
+  new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: classNames,
+      datasets: [{
+        label:"View Count",
+        data: viewCounts,
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+    }
+  });
+
+
+</script>
+{% endblock %}

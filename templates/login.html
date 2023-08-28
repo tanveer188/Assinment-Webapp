@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<title>Admin Panel</title>
+{% endblock %}
+
+{% block body %}
+<div class="d-flex align-items-center justify-content-center vh-100">
+    <div class="card shadow">
+        <div class="card-body">
+            <h3 class="card-title text-center">Log in to Codepen</h3>
+            <div class="card-text">
+                {% if form.errors %}
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        Incorrect username or password.
+                    </div>
+                {% endif %}
+                <form method="post" class="form" id="form">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="id_username" class="form-label">Username</label>
+                        <input type="text" name="username" class="form-control" id="id_username">
+                    </div>
+                    <div class="mb-3">
+                        <label for="id_password" class="form-label">Password</label>
+                        <input type="password" name="password" class="form-control" id="id_password">
+                    </div>
+                    <input type="submit" name="Submit" id="Submit" value="Submit" class="btn btn-primary btn-block"  />
+
+                    <div class="sign-up text-center mt-3">
+                        Don't have an account? <a href="{% url 'register' %}">Create One</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Your HTML template code -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jsencrypt/3.3.2/jsencrypt.js" integrity="sha512-fKBMJxuNzI6qCC+nxxE9hqcQBFNH39VYP6FtBZOBI9UHHdX+/sNuS9jxIuf6URPmGGCQpAR/xOxCMgMy3VQG/Q==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  const publicKeyPEM = `{{key}}`;
+  const encrypt = new JSEncrypt();
+  encrypt.setPublicKey(publicKeyPEM);
+
+  const loginForm = document.getElementById("form");  // Assuming the form is the first form on the page
+  const usernameInput = document.getElementById("id_username");
+  const passwordInput = document.getElementById("id_password");
+  const submitButton = document.getElementById("Submit");
+
+  loginForm.addEventListener("submit", function(event) {
+    event.preventDefault(); // Prevent default form submission
+
+    // Disable the submit button
+    submitButton.disabled = true;
+
+    // Encrypt the username and password
+    const encryptedUsername = encrypt.encrypt(usernameInput.value);
+    const encryptedPassword = encrypt.encrypt(passwordInput.value);
+
+    // Update the form fields with the encrypted values
+    usernameInput.value = encryptedUsername;
+    passwordInput.value = encryptedPassword;
+
+    // Manually trigger the form's submit event
+    document.getElementById("form").submit();
+  });
+});
+
+
+
+
+
+</script>
+
+{% endblock %}

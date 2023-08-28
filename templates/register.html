@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+
+{% block head %}
+{% load crispy_forms_tags %}
+
+<title>Admin Panel</title>
+{% endblock %}
+
+{% block body %}
+<div class="">
+    <div class="card shadow">
+        <div class="card-body">
+            <h3 class="card-title text-center">Sign-up</h3>
+            <div class="card-text">
+                <form method="post" id="form">
+                    {% csrf_token %}
+                    {{ form|crispy }}
+                    <input type="submit" name="Submit" value="Sign-up" class="btn btn-primary btn-block" id="Sign"  />
+
+
+                    <div class="sign-up text-center mt-3">
+                        Already have an account? <a href="{% url 'login' %}">Login</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jsencrypt/3.3.2/jsencrypt.js" integrity="sha512-fKBMJxuNzI6qCC+nxxE9hqcQBFNH39VYP6FtBZOBI9UHHdX+/sNuS9jxIuf6URPmGGCQpAR/xOxCMgMy3VQG/Q==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  const publicKeyPEM = `{{key}}`;
+  const encrypt = new JSEncrypt();
+  encrypt.setPublicKey(publicKeyPEM);
+
+  const loginForm = document.getElementById("form"); // Selecting the first form on the page
+  const usernameInput = document.getElementById("id_username");
+  const password1Input = document.getElementById("id_password1");
+  const password2Input = document.getElementById("id_password2");
+  const submitButton = document.getElementById("Sign");
+
+  loginForm.addEventListener("submit",function(event) {
+    event.preventDefault(); // Prevent default form submission
+
+    // Disable the submit button
+    submitButton.disabled = true;
+
+    // Encrypt the username and passwords
+    const encryptedUsername = encrypt.encrypt(usernameInput.value);
+    const encryptedPassword1 = encrypt.encrypt(password1Input.value);
+    const encryptedPassword2 = encrypt.encrypt(password2Input.value);
+
+    // Perform operations on the encrypted passwords (e.g., concatenate)
+    usernameInput.value = encryptedUsername;
+    password1Input.value = encryptedPassword1;
+    password2Input.value = encryptedPassword2;
+    // Manually trigger the form's submit event
+    loginForm.submit();
+  });
+});
+
+
+
+</script>
+
+{% endblock %}

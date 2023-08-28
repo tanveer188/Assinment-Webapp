@@ -1,0 +1,195 @@
+{% extends 'base.html' %} 
+{% block head %}
+<title>{{ quiz }}</title>
+{% endblock %}
+
+{% block body %}
+{% include "header.html" %}
+
+<div class="container mt-4">
+  <div class="d-flex align-items-center justify-content-between">
+    <h1 class="mt-1">Quiz</h1>
+    {% load custom_tags %}
+    {% if request.user|is_user_in_group:"teacher_grp" or  request.user|is_user_in_group:"admin_grp" %}
+    <a href="#" class="btn btn-primary">Save</a>
+    {% endif %}
+  </div>
+</div>
+
+<style>
+  .container {
+    margin-top: 20px;
+  }
+
+  .form-group {
+    margin-bottom: 20px;
+  }
+
+  .option-group {
+    margin-bottom: 10px;
+  }
+
+  .remove-option-button {
+    margin-left: 10px;
+    cursor: pointer;
+    background-color: red;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 5px;
+    margin-top: 5px;
+  }
+</style>
+
+<div class="container">
+  <form id="quiz-form" method="POST" action="{% url 'submit_quiz' pk=pk %}" >
+
+  {% csrf_token %}
+
+  <div id="questions-container">
+    <!-- Existing question groups will be dynamically added here -->
+  </div>
+
+  <button type="button" class="btn btn-success mt-3 mb-3" onclick="addQuestion()">Add Question</button>
+
+  <button type="submit" class="btn btn-primary mt-3 mb-3">Submit</button>
+</form>
+
+</div>
+
+<script>
+
+let questionCount = 1; // Counter for question IDs
+
+
+function addQuestion() {
+  const questionsContainer = document.getElementById('questions-container');
+
+  // Create the question group
+  const questionGroup = document.createElement('div');
+  questionGroup.className = 'question-group mt-4';
+
+  // Create the question heading
+  const questionHeading = document.createElement('h5');
+  questionHeading.textContent = 'Question:';
+
+  // Create the question input
+  const questionInput = document.createElement('textarea');
+  questionInput.className = 'form-control';
+  questionInput.name = `question_${questionCount}`;
+
+  // Create the options container
+  const optionsContainer = document.createElement('div');
+  optionsContainer.className = 'options-container';
+
+  // Append the question heading, question input, and options container to the question group
+  questionGroup.appendChild(questionHeading);
+  questionGroup.appendChild(questionInput);
+  questionGroup.appendChild(optionsContainer);
+
+  // Add the "Add Option" button to the new question
+  const addOptionButton = document.createElement('button');
+  addOptionButton.type = 'button';
+  addOptionButton.className = 'btn btn-primary m-1';
+  addOptionButton.textContent = 'Add Option';
+  addOptionButton.onclick = function () {
+    addOption(this);
+  };
+  questionGroup.appendChild(addOptionButton);
+
+  // Add the "Remove Question" button to the new question
+  const removeQuestionButton = document.createElement('button');
+  removeQuestionButton.type = 'button';
+  removeQuestionButton.className = 'btn btn-danger m-1';
+  removeQuestionButton.textContent = 'Remove Question';
+  removeQuestionButton.onclick = function () {
+    removeQuestion(this);
+  };
+  questionGroup.appendChild(removeQuestionButton);
+
+  // Append the question group to the questions container
+  questionsContainer.appendChild(questionGroup);
+
+  questionCount++; // Increment the question counter
+}
+function addOption(button) {
+  const questionGroup = button.parentNode;
+  const optionsContainer = questionGroup.getElementsByClassName('options-container')[0];
+
+  // Create the option group
+  const optionGroup = document.createElement('div');
+  optionGroup.className = 'option-group mt-1';
+
+  // Calculate the option index based on the existing options
+  const optionIndex = optionsContainer.getElementsByClassName('option-group').length + 1;
+
+  // Create the option input
+  const optionInput = document.createElement('input');
+  optionInput.type = 'text';
+  optionInput.className = 'form-control';
+  optionInput.name = `option_${questionGroup.getElementsByTagName('textarea')[0].name.match(/\d+/)}`;
+  optionInput.placeholder = `Option ${optionIndex}`;
+
+  // Create the radio button
+  const radioButton = document.createElement('input');
+  radioButton.type = 'radio';
+  radioButton.className = 'form-check-input';
+  radioButton.name = `answer_${questionGroup.getElementsByTagName('textarea')[0].name.match(/\d+/)}`;
+  radioButton.value = optionIndex;
+
+  // Create the remove option button
+  const removeButton = document.createElement('i');
+  removeButton.className = 'fas fa-times remove-option-button';
+  removeButton.onclick = function () {
+    removeOption(this);
+  };
+
+  // Create the option container and append the radio button, option input, and remove button
+  const optionContainer = document.createElement('div');
+  optionContainer.className = 'option';
+  const optionWrapper = document.createElement('div');
+  optionWrapper.className = 'd-flex align-items-center';
+  optionWrapper.appendChild(radioButton);
+  optionWrapper.appendChild(optionInput);
+  optionWrapper.appendChild(removeButton);
+  optionContainer.appendChild(optionWrapper);
+
+  // Append the option container to the option group
+  optionGroup.appendChild(optionContainer);
+
+  // Append the option group to the options container
+  optionsContainer.appendChild(optionGroup);
+}
+
+
+function removeOption(button) {
+  const optionGroup = button.parentNode.parentNode.parentNode;
+  optionGroup.parentNode.removeChild(optionGroup);
+}
+
+function removeQuestion(button) {
+  const questionGroup = button.parentNode;
+  questionGroup.parentNode.removeChild(questionGroup);
+  questionCount = questionCount -1;
+}
+
+
+
+
+
+document.addEventListener("keydown", function(event) {
+    if (event.key === "Enter" && event.target.tagName !== "TEXTAREA") {
+        event.preventDefault();
+    }
+});
+
+
+
+</script>
+
+<style>
+  .option-container {
+    margin-left: 5px;
+  }
+</style>
+
+{% endblock %}
